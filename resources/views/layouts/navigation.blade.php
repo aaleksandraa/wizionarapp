@@ -78,12 +78,14 @@
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
+            <x-responsive-nav-link :href="route('appointments.index')" :active="request()->routeIs('appointments.index')">
+                {{ __('Početna') }}
             </x-responsive-nav-link>
-
             <x-responsive-nav-link :href="route('usluge.index')" :active="request()->routeIs('usluge.index')">
                 {{ __('Usluge') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('clients.index')" :active="request()->routeIs('clients.index')">
+                {{ __('Klijenti') }}
             </x-responsive-nav-link>
         </div>
 
