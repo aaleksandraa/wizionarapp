@@ -11,4 +11,9 @@ class Service extends Model
 
     protected $fillable = ['name', 'price'];
 
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class, 'service_id');
+    }
+
 }

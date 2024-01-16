@@ -141,6 +141,6 @@ class AppointmentController extends Controller
     });
 
     return view('appointments.index', compact('appointments', 'totalPrice'));
-    }
+    }  
 
 }
