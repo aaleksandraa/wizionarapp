@@ -25,6 +25,13 @@
                         {{ __('Klijenti') }}
                     </x-nav-link>
 
+                    @auth
+                        @if(Auth::user()->user_type === 'administrator') 
+                            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                                {{ __('Analize') }}
+                            </x-nav-link>
+                        @endif
+                    @endauth
 
                 </div>
             </div>

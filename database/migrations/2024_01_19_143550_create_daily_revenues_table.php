@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('appointments', function (Blueprint $table) {
+        Schema::create('daily_revenues', function (Blueprint $table) {
             $table->id();
+            $table->date('date')->unique(); // Jedinstveni datum za svaki zapis
+            $table->decimal('total_revenue', 10, 2); // Ukupan prihod za dan
+            $table->integer('total_services'); // Ukupan broj usluga pruženih tog dana
             $table->timestamps();
         });
+        
     }
 
     /**
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('appointments');
+        Schema::dropIfExists('daily_revenues');
     }
 };

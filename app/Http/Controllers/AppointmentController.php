@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Appointment; // Dodajte ovu liniju
 use App\Models\Client;      // Dodajte ovu liniju
 use App\Models\Service;     // Dodajte ovu liniju
+use App\Models\DailyRevenue;
 
 class AppointmentController extends Controller
 {
@@ -70,10 +71,15 @@ class AppointmentController extends Controller
             'end_time' => $request->input('end_time')
         ]);
         $appointment->save();
+
+        // Ažuriranje DailyRevenue za dan kada je kreiran appointment
+        // $this->updateDailyRevenue($appointment);
     
         return redirect()->route('appointments.index')
                          ->with('success', 'Termin je uspešno dodat.');
+                         
     }
+
 
     // Prikazuje jedan termin
     public function show(Appointment $appointment)

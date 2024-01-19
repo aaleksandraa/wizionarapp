@@ -14,6 +14,14 @@ class Kernel extends ConsoleKernel
     {
         // $schedule->command('inspire')->hourly();
         $schedule->command('report:daily')->dailyAt('20:05');
+
+        $schedule->call(function () {
+            (new RevenueService())->updateDailyRevenue();
+        })->dailyAt('20:00'); // Postavlja se na kraj dana
+    
+        $schedule->call(function () {
+            (new RevenueService())->updateMonthlyRevenue();
+        })->monthlyOn(1, '00:01'); // Postavlja se na početak svakog mjeseca
     }
 
     /**
