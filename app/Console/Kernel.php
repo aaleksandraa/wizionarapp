@@ -12,16 +12,10 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
-        $schedule->command('report:daily')->dailyAt('20:05');
+        // Definiranje rasporeda za generiranje dnevnog izvještaja
+       // $schedule->command('report:generate')->dailyAt('01:56');
+       
 
-        $schedule->call(function () {
-            (new RevenueService())->updateDailyRevenue();
-        })->dailyAt('20:00'); // Postavlja se na kraj dana
-    
-        $schedule->call(function () {
-            (new RevenueService())->updateMonthlyRevenue();
-        })->monthlyOn(1, '00:01'); // Postavlja se na početak svakog mjeseca
     }
 
     /**
@@ -31,7 +25,9 @@ class Kernel extends ConsoleKernel
     {
         $this->load(__DIR__.'/Commands');
 
-        require base_path('routes/console.php');
-    }
+       
     
+
+       // require base_path('routes/console.php');
+    }
 }

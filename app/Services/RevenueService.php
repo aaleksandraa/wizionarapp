@@ -8,17 +8,24 @@ use App\Models\Appointment;
 
 class RevenueService
 {
-    public function updateDailyRevenue()
-    {
-        $today = now()->format('Y-m-d');
-        $totalRevenueToday = Appointment::whereDate('date', $today)->sum('service_price');
-        $totalServicesToday = Appointment::whereDate('date', $today)->count();
+     public function updateDailyRevenue()
+		{
+			$today = now()->format('Y-m-d');
 
-        DailyRevenue::updateOrCreate(
-            ['date' => $today],
-            ['total_revenue' => $totalRevenueToday, 'total_services' => $totalServicesToday]
-        );
-    }
+			// Sumiranje cijena svih usluga (service) za današnji dan
+			$totalRevenueToday = Appointment::join('services', 'appointments.service_id', '=', 'services.id')
+									->whereDate('appointments.date', $today)
+									->sum('services.price'); // Sumiranje cijena usluga
+
+			// Brojanje ukupnog broja usluga (tretmana) za današnji dan
+			$totalServicesToday = Appointment::whereDate('date', $today)->count();
+
+			// Ažuriranje ili kreiranje zapisa u tabeli daily_revenues
+			DailyRevenue::updateOrCreate(
+				['date' => $today],
+				['total_revenue' => $totalRevenueToday, 'total_services' => $totalServicesToday]
+			);
+		}
 
     public function updateMonthlyRevenue()
     {

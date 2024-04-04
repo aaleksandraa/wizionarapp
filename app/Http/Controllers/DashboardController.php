@@ -8,6 +8,7 @@ use App\Models\DailyRevenue;
 use App\Models\MonthlyRevenue;
 use App\Models\Appointment;
 use App\Models\Service;
+use App\Models\User;
 use Carbon\Carbon;
 use App\Services\RevenueService; 
 use Illuminate\Support\Facades\DB;
@@ -28,8 +29,12 @@ class DashboardController extends Controller
         $dailyRevenue = DailyRevenue::where('date', $today)->first();
         $monthlyRevenue = MonthlyRevenue::where('month', $currentMonth)->first();
         $weeklyRevenue = $this->calculateWeeklyRevenueComparison();
+        $users = User::where('user_type', '!=', 'administrator')->get();
+        $appointments = Appointment::whereDate('date', $today)->get();
 
-        return view('dashboard', compact('currentDailyRevenue', 'dailyRevenue', 'dnevniBrojServisa', 'monthlyRevenue', 'weeklyRevenue'));
+
+
+        return view('dashboard', compact('currentDailyRevenue', 'dailyRevenue', 'dnevniBrojServisa', 'monthlyRevenue', 'weeklyRevenue', 'users', 'appointments'));
 
     }
 
@@ -68,8 +73,6 @@ class DashboardController extends Controller
             'percentageChange' => $percentageChange
         ];
     }
-
-
     
             public function getTopServices()
         {

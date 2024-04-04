@@ -11,7 +11,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+         // Registracija servisa za generiranje dnevnog izvještaja
+    $this->app->singleton('command.report.generate', function ($app) {
+        return $app['App\Console\Commands\GenerateDailyReport'];
+    });
     }
 
     /**

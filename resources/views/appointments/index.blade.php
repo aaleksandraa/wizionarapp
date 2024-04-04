@@ -9,7 +9,7 @@
         </div> 
 
        {{-- <h2 class="text-2xl font-semibold">Pregledi / usluge</h2>  --}}
-        <a href="{{ route('appointments.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Dodaj Novi Tretman</a>
+        <a href="{{ route('appointments.create') }}" class="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded">Dodaj Novi Tretman</a>
     </div>
 
     @if ($appointments->isEmpty())
@@ -36,7 +36,7 @@
                             <td class="py-2 px-4">{{ $appointment->service->name }}</td>
                             <td class="py-2 px-4">{{ $appointment->service->price }} KM</td>
                             <td class="py-2 px-4">
-                                <a href="{{ route('appointments.edit', $appointment->id) }}" class="text-blue-500 hover:text-blue-800"><i class="fas fa-edit"></i></a>
+                                <a href="{{ route('appointments.edit', $appointment->id) }}" class="text-pink-600 hover:text-pink-700"><i class="fas fa-edit"></i></a>
                                 <form action="{{ route('appointments.destroy', $appointment->id) }}" method="POST" class="inline-block">
                                     @csrf
                                     @method('DELETE')

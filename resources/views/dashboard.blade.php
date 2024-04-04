@@ -58,7 +58,10 @@
                 <p class="text-center">Nema podataka za tekući mjesec.</p>
             </div>
         @endif
-    </div>
+
+        
+
+</div>
 </div>
 
 <script>

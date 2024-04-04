@@ -6,7 +6,7 @@
         <div class="w-full max-w-4xl">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-semibold">Usluge</h2>
-                <a href="{{ route('usluge.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Dodaj Novu Uslugu</a>
+                <a href="{{ route('usluge.create') }}" class="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded">Dodaj Novu Uslugu</a>
             </div>
 
             @if ($services->isEmpty())
@@ -18,7 +18,7 @@
                             <h3 class="text-lg font-semibold">{{ $service->name }}</h3>
                             <p class="text-gray-700">{{ $service->price }} KM</p>
                             <div class="flex mt-4">
-                                <a href="{{ route('usluge.edit', $service->id) }}" class="text-blue-500 hover:text-blue-800 mr-2">
+                                <a href="{{ route('usluge.edit', $service->id) }}" class="text-gray-600 hover:text-pink-700 mr-2">
                                     Izmijeni
                                 </a>
                                 <form action="{{ route('usluge.destroy', $service->id) }}" method="POST" class="ml-4">

@@ -16,8 +16,8 @@
                 <input type="text" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="price" name="price" value="{{ $service->price }}" required>
             </div>
             <div class="flex items-center justify-between">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Ažuriraj</button>
-                <a href="{{ route('usluge.index') }}" class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">Nazad</a>
+                <button type="submit" class="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Ažuriraj</button>
+                <a href="{{ route('usluge.index') }}" class="inline-block align-baseline font-bold text-sm text-pink-600 hover:text-pink-700">Nazad</a>
             </div>
         </form>
     </div>

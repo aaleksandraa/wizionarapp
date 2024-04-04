@@ -9,7 +9,7 @@ class Appointment extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['client_id', 'service_id', 'date', 'start_time', 'end_time'];
+    protected $fillable = ['client_id', 'service_id', 'date', 'start_time', 'end_time', 'user_id'];
 
     // Relacija sa Client
     public function client()

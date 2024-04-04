@@ -3,18 +3,41 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Appointment; // Dodajte ovu liniju
-use App\Models\Client;      // Dodajte ovu liniju
-use App\Models\Service;     // Dodajte ovu liniju
+use App\Models\Appointment; 
+use App\Models\Client;      
+use App\Models\Service;    
 use App\Models\DailyRevenue;
+use App\Models\User;
 
 class AppointmentController extends Controller
 {
     // Prikazuje listu svih termina
-    public function index()
+    public function index(Request $request)
     {
-        $today = \Carbon\Carbon::now()->format('Y-m-d');
-        $appointments = Appointment::whereDate('date', $today)->get();
+        $userType = auth()->user()->user_type; // Dobavljanje uloge trenutno prijavljenog korisnika
+
+        // Ako je korisnik administrator, prikaži sve termine
+        if ($userType === 'administrator') {   
+            $date = $request->query('date', now()->format('Y-m-d')); // Ako datum nije prosleđen, koristi današnji datum         
+            // $today = now()->format('Y-m-d');
+            $users = User::where('user_type', '!=', 'administrator')->get(); // Dobavljanje svih korisnika osim administratora            
+            $appointments = Appointment::whereDate('date', $date)->get();
+
+
+            return view('appointments.admin_index', compact('users', 'appointments'));        
+
+
+
+        } else {
+            // Inače, prikaži samo termine trenutno prijavljenog korisnika
+            $userId = auth()->id(); // Dobavljanje ID-a trenutno prijavljenog korisnika
+            $today = \Carbon\Carbon::now()->format('Y-m-d');     
+            $appointments = Appointment::where('user_id', $userId) // Filtriranje po user_id
+                               ->whereDate('date', $today)
+                               ->get();
+
+   
+        
 
         // Izračunavanje ukupne cijene
         $totalPrice = $appointments->sum(function ($appointment) {
@@ -22,7 +45,7 @@ class AppointmentController extends Controller
         });
 
         return view('appointments.index', compact('appointments', 'totalPrice'));
-
+    }
     }
 
     // Prikazuje formu za kreiranje novog termina
@@ -68,7 +91,8 @@ class AppointmentController extends Controller
             'date' => \Carbon\Carbon::createFromFormat('Y-m-d', $request->input('date'))->format('Y-m-d'),
 
             'start_time' => $request->input('start_time'),
-            'end_time' => $request->input('end_time')
+            'end_time' => $request->input('end_time'),
+            'user_id' => auth()->id()
         ]);
         $appointment->save();
 
@@ -141,7 +165,17 @@ class AppointmentController extends Controller
 
     public function showByDate($date)
     {   
-    $appointments = Appointment::whereDate('date', $date)->get();
+    $userId = auth()->id(); // Dobavljanje ID-a trenutno prijavljenog korisnika
+    $userType = auth()->user()->user_type; // Dobavljanje uloge trenutno prijavljenog korisnika
+     // Ako je korisnik administrator, prikaži sve termine
+    if ($userType === 'administrator') {
+        $appointments = Appointment::whereDate('date', $date)->get();
+    } else {
+        // Inače, prikaži samo termine trenutno prijavljenog korisnika
+        $appointments = Appointment::where('user_id', $userId)
+                                   ->whereDate('date', $date)
+                                   ->get();
+    }
     $totalPrice = $appointments->sum(function ($appointment) {
         return $appointment->service->price;
     });
