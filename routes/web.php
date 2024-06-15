@@ -22,7 +22,8 @@ use App\Http\Controllers\DashboardController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('appointments.index');
+    // return view('welcome');
 })->middleware('auth');
 
 

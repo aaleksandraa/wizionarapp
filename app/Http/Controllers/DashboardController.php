@@ -12,6 +12,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use App\Services\RevenueService; 
 use Illuminate\Support\Facades\DB;
+use App\Models\UserDailyRevenue;
 
 
 class DashboardController extends Controller
@@ -30,11 +31,20 @@ class DashboardController extends Controller
         $monthlyRevenue = MonthlyRevenue::where('month', $currentMonth)->first();
         $weeklyRevenue = $this->calculateWeeklyRevenueComparison();
         $users = User::where('user_type', '!=', 'administrator')->get();
-        $appointments = Appointment::whereDate('date', $today)->get();
-
-
-
-        return view('dashboard', compact('currentDailyRevenue', 'dailyRevenue', 'dnevniBrojServisa', 'monthlyRevenue', 'weeklyRevenue', 'users', 'appointments'));
+        $appointments = Appointment::whereDate('date', $today)->get();        
+        $usersRevenueToday = UserDailyRevenue::where('date', $today)->with('user')->get();
+        $startOfMonth = now()->startOfMonth()->format('Y-m-d');
+        $endOfMonth = now()->endOfMonth()->format('Y-m-d');
+        $monthlyTotalRevenue = UserDailyRevenue::whereBetween('date', [$startOfMonth, $endOfMonth])
+                                                ->sum('revenue');
+        $usersMonthlyRevenue = UserDailyRevenue::whereBetween('date', [$startOfMonth, $endOfMonth])->with('user')->get();
+        
+        $monthlyUsersRevenue = UserDailyRevenue::whereBetween('date', [$startOfMonth, $endOfMonth])
+        ->with('user')
+        ->select('user_id', DB::raw('SUM(revenue) as total_revenue'))
+        ->groupBy('user_id')
+        ->get();
+        return view('dashboard', compact('currentDailyRevenue', 'dailyRevenue', 'dnevniBrojServisa', 'monthlyRevenue', 'weeklyRevenue', 'users', 'appointments', 'usersRevenueToday', 'usersMonthlyRevenue', 'monthlyUsersRevenue', 'monthlyTotalRevenue'));
 
     }
 

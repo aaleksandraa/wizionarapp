@@ -14,9 +14,13 @@ class Kernel extends ConsoleKernel
     {
         // Definiranje rasporeda za generiranje dnevnog izvještaja
        // $schedule->command('report:generate')->dailyAt('01:56');
+       $schedule->command('revenue:update-daily')->dailyAt('21:01');
+
        
 
     }
+
+    
 
     /**
      * Register the commands for the application.
