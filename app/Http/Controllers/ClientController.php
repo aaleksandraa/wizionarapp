@@ -61,10 +61,16 @@ class ClientController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        //
-    }
+    public function show(Client $client)
+{
+    $appointments = $client->appointments()->with('service')->get();
+    $totalSpent = $appointments->sum(function($appointment) {
+        return $appointment->service->price;
+    });
+    return view('clients.show', compact('client', 'appointments', 'totalSpent'));
+}
+
+
 
     /**
      * Show the form for editing the specified resource.
@@ -89,4 +95,6 @@ class ClientController extends Controller
     {
         //
     }
+
+    
 }

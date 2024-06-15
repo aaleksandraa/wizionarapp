@@ -8,6 +8,7 @@ use App\Models\Client;
 use App\Models\Service;    
 use App\Models\DailyRevenue;
 use App\Models\User;
+use Carbon\Carbon;
 
 class AppointmentController extends Controller
 {
@@ -51,11 +52,11 @@ class AppointmentController extends Controller
     // Prikazuje formu za kreiranje novog termina
     public function create()
     {
-        $clients = Client::all();
+        $clients = Client::orderBy('name', 'asc')->get();
         $services = Service::all();
         // return view('appointments.create', compact('clients', 'services'));
         $today = \Carbon\Carbon::now()->format('d.m.Y');
-        return view('appointments.create', compact('services', 'today'));
+        return view('appointments.create', compact('clients','services', 'today'));
     }
 
     // Čuva novi termin u bazi podataka
@@ -63,36 +64,40 @@ class AppointmentController extends Controller
     {
         try {
         $request->validate([
-            'client_name' => 'required',
-            'client_email' => 'nullable|email',
-            'client_phone' => 'nullable',
-            'service_id' => 'required',
-            'date' => 'required|date_format:Y-m-d', // Ako je format datuma Y-m-d
-            'start_time' => 'required',
-            'end_time' => 'required'
+            'client_name' => 'required_if:client_type,new',
+        'client_email' => 'nullable|email',
+        'client_phone' => 'nullable',
+        'existing_client_id' => 'required_if:client_type,existing',
+        'service_id' => 'required',
+        'date' => 'required|date_format:Y-m-d', // Ako je format datuma Y-m-d
+        'start_time' => 'required',
+        'end_time' => 'required'
         ]);
     } catch (\Exception $e) {
         return back()->withError('Greška: ' . $e->getMessage())->withInput();
     }
     
-        // Kreiranje novog klijenta
+    
+        
+       // Kreiranje ili dohvat klijenta
+    if ($request->input('client_type') == 'new') {
         $client = Client::create([
             'name' => $request->input('client_name'),
             'email' => $request->input('client_email'),
             'phone' => $request->input('client_phone')
         ]);
+    } else {
+        $client = Client::find($request->input('existing_client_id'));
+    }
     
         // Kreiranje novog termina
         $appointment = new Appointment([
             'client_id' => $client->id,
-            'service_id' => $request->input('service_id'),
-            // 'date' => \Carbon\Carbon::createFromFormat('d.m.Y', $request->input('date'))->format('Y-m-d'),
-
-            'date' => \Carbon\Carbon::createFromFormat('Y-m-d', $request->input('date'))->format('Y-m-d'),
-
-            'start_time' => $request->input('start_time'),
-            'end_time' => $request->input('end_time'),
-            'user_id' => auth()->id()
+        'service_id' => $request->input('service_id'),
+        'date' => \Carbon\Carbon::createFromFormat('Y-m-d', $request->input('date'))->format('Y-m-d'),
+        'start_time' => $request->input('start_time'),
+        'end_time' => $request->input('end_time'),
+        'user_id' => auth()->id()
         ]);
         $appointment->save();
 

@@ -45,10 +45,15 @@ Route::middleware('auth')->group(function () {
 
     // Standardne rute resursa
     Route::resource('appointments', AppointmentController::class);
+    
+    
+
 
 
     Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
     Route::get('/api/clients', [ClientController::class, 'apiIndex'])->name('api.clients.index');
+    Route::get('/clients/{client}', [ClientController::class, 'show'])->name('clients.show');
+
 });
 
 require __DIR__.'/auth.php';
