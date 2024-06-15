@@ -14,9 +14,9 @@
             <li class="bg-white p-4 rounded-lg shadow-md">
                 <p class="text-gray-700"><strong>Datum:</strong> {{ \Carbon\Carbon::parse($appointment->date)->format('d.m.Y') }}</p>
                 <p class="text-gray-700"><strong>Usluga:</strong> {{ $appointment->service->name }}</p>
-                <p class="text-gray-700"><strong>Cijena:</strong> {{ $appointment->service->price }} KM</p>
-                <br>
+                <p class="text-gray-700"><strong>Cijena:</strong> {{ $appointment->service->price }} KM</p>                
             </li>
+            <br>
         @endforeach
     </ul>
 
