@@ -2,9 +2,8 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
-    <div class="mb-4 flex justify-between items-center">
+    <div class="mb-4">
         <input type="text" id="searchBox" class="shadow border rounded w-full py-2 px-3 text-gray-700" placeholder="Pretraži klijente...">
-        <a href="{{ route('clients.mergeDuplicatesByName') }}" class="ml-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Spoji Duplikate po Imenu</a>
     </div>
 
     <div id="clientList">
