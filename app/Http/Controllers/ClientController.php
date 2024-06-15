@@ -62,12 +62,11 @@ class ClientController extends Controller
         //
     }
 
-    /**
-     * Display the specified resource.
-     */
+ 
+    // Prilagodba metode show u ClientController
     public function show(Client $client)
 {
-    $appointments = $client->appointments()->with('service')->get();
+    $appointments = $client->appointments()->with('service')->orderBy('date', 'desc')->get();
     $totalSpent = $appointments->sum(function($appointment) {
         return $appointment->service->price;
     });
