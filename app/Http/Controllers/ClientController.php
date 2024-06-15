@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Client;
+use App\Models\Appointment;
+use Illuminate\Support\Facades\DB;
+
+
 
 class ClientController extends Controller
 {
@@ -96,5 +100,41 @@ class ClientController extends Controller
         //
     }
 
+    public function mergeDuplicatesByName()
+    {
+        // Dohvatimo sve klijente grupirane po imenu i prezimenu
+        $duplicates = DB::table('clients')
+            ->select('name', DB::raw('COUNT(*) as count'))
+            ->groupBy('name')
+            ->having('count', '>', 1)
+            ->get();
+
+        foreach ($duplicates as $duplicate) {
+            $clients = Client::where('name', $duplicate->name)->get();
+            $mainClient = $clients->first();
+
+            foreach ($clients->slice(1) as $duplicateClient) {
+                // Ažuriramo email i telefon ako glavni klijent nema te podatke
+                if (!$mainClient->email && $duplicateClient->email) {
+                    $mainClient->email = $duplicateClient->email;
+                }
+                if (!$mainClient->phone && $duplicateClient->phone) {
+                    $mainClient->phone = $duplicateClient->phone;
+                }
+
+                // Pripojimo sve usluge dupliciranog klijenta glavnom klijentu
+                Appointment::where('client_id', $duplicateClient->id)
+                    ->update(['client_id' => $mainClient->id]);
+
+                // Izbrišemo duplicirani klijent
+                $duplicateClient->delete();
+            }
+
+            // Spremimo ažuriranog glavnog klijenta
+            $mainClient->save();
+        }
+
+        return redirect()->route('clients.index')->with('success', 'Duplicirani klijenti su uspješno spojeni.');
+    }
     
 }
