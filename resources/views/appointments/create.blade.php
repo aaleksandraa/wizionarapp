@@ -8,17 +8,32 @@
             @csrf
 
             <div class="mb-4">
-                <label for="client_type" class="block text-gray-700 text-sm font-bold mb-2">Tip Klijenta</label>
-                <select id="client_type" class="shadow border rounded w-full py-2 px-3 text-gray-700" onchange="toggleClientFields()">
-                    <option value="new">Novi Klijent</option>
-                    <option value="existing">Postojeći Klijent</option>
+                <label class="block text-gray-700 text-sm font-bold mb-2">Izaberite tip klijenta</label>
+                <div class="flex items-center">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="client_type" value="existing" id="existing_client_radio" class="form-radio h-4 w-4 text-pink-600">
+                        <span class="ml-2">Postojeći Klijent</span>
+                    </label>
+                    <label class="inline-flex items-center ml-4">
+                        <input type="radio" name="client_type" value="new" id="new_client_radio" class="form-radio h-4 w-4 text-pink-600">
+                        <span class="ml-2">Novi Klijent</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="existing_client_section" class="mb-4" style="display: none;">
+                <label for="existing_client" class="block text-gray-700 text-sm font-bold mb-2">Izaberite klijenta</label>
+                <select id="existing_client" name="existing_client" class="shadow border rounded w-full py-2 px-3 text-gray-700">
+                    @foreach($clients as $client)
+                        <option value="{{ $client->id }}">{{ $client->name }}</option>
+                    @endforeach
                 </select>
             </div>
 
-            <div id="new_client_fields">
+            <div id="new_client_section" style="display: none;">
                 <div class="mb-4">
                     <label for="client_name" class="block text-gray-700 text-sm font-bold mb-2">Ime i Prezime Klijenta</label>
-                    <input type="text" name="client_name" id="client_name" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight" required>
+                    <input type="text" name="client_name" id="client_name" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight">
                 </div>
                 <div class="mb-4">
                     <label for="client_email" class="block text-gray-700 text-sm font-bold mb-2">Email</label>
@@ -27,18 +42,6 @@
                 <div class="mb-4">
                     <label for="client_phone" class="block text-gray-700 text-sm font-bold mb-2">Broj Telefona</label>
                     <input type="text" name="client_phone" id="client_phone" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight">
-                </div>
-            </div>
-
-            <div id="existing_client_fields" style="display: none;">
-                <div class="mb-4">
-                    <label for="existing_client_id" class="block text-gray-700 text-sm font-bold mb-2">Postojeći Klijent</label>
-                    <select id="existing_client_id" name="existing_client_id" class="shadow border rounded w-full py-2 px-3 text-gray-700" onchange="fillClientDetails()">
-                        <option value="">Odaberi Klijenta</option>
-                        @foreach($clients as $client)
-                            <option value="{{ $client->id }}" data-email="{{ $client->email }}" data-phone="{{ $client->phone }}">{{ $client->name }}</option>
-                        @endforeach
-                    </select>
                 </div>
             </div>
 
@@ -56,7 +59,6 @@
                 <input type="text" id="datePicker" name="date" class="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight" required>
             </div>
 
-            
             <div class="mb-4">
                 <label for="start_time" class="block text-gray-700 text-sm font-bold mb-2">Vreme Početka (24h format)</label>
                 <input type="time" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight" id="start_time" name="start_time" required>
@@ -66,56 +68,43 @@
                 <input type="time" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight" id="end_time" name="end_time" required>
             </div>
             <div class="flex items-center justify-between">
-            <button type="submit" class="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Sačuvaj</button>
-            <a href="{{ route('appointments.index') }}" class="inline-block align-baseline font-bold text-sm text-pink-600 hover:text-pink-700">Nazad</a>
+                <button type="submit" class="bg-pink-500 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">Sačuvaj</button>
+                <a href="{{ route('appointments.index') }}" class="inline-block align-baseline font-bold text-sm text-pink-600 hover:text-pink-700">Nazad</a>
             </div>
-            </form>
-            </div>
-            
-            </div>
-            
+        </form>
+    </div>
+</div>
 
-            <script>
-                function formatDate(date) {
-                    var d = new Date(date),
-                        day = '' + d.getDate(),
-                        month = '' + (d.getMonth() + 1),
-                        year = d.getFullYear();
-            
-                    if (day.length < 2) 
-                        day = '0' + day;
-                    if (month.length < 2) 
-                        month = '0' + month;
-            
-                    return [day, month, year].join('.');
-                }
-            
-                flatpickr("#datePicker", {
-                    altInput: true,
-                    altFormat: "d.m.Y",
-                    dateFormat: "Y-m-d",
-                    defaultDate: new Date().toISOString().slice(0, 10) // Formatira današnji datum kao YYYY-MM-DD
-                });
+<script>
+document.getElementById('existing_client_radio').addEventListener('change', function() {
+    document.getElementById('existing_client_section').style.display = 'block';
+    document.getElementById('new_client_section').style.display = 'none';
+});
 
-                function toggleClientFields() {
-                    var clientType = document.getElementById('client_type').value;
-                    var newClientFields = document.getElementById('new_client_fields');
-                    var existingClientFields = document.getElementById('existing_client_fields');
-                    if (clientType === 'new') {
-                        newClientFields.style.display = 'block';
-                        existingClientFields.style.display = 'none';
-                    } else {
-                        newClientFields.style.display = 'none';
-                        existingClientFields.style.display = 'block';
-                    }
-                }
+document.getElementById('new_client_radio').addEventListener('change', function() {
+    document.getElementById('existing_client_section').style.display = 'none';
+    document.getElementById('new_client_section').style.display = 'block';
+});
 
-                function fillClientDetails() {
-                    var selectedClient = document.getElementById('existing_client_id').selectedOptions[0];
-                    document.getElementById('client_name').value = selectedClient.text;
-                    document.getElementById('client_email').value = selectedClient.getAttribute('data-email');
-                    document.getElementById('client_phone').value = selectedClient.getAttribute('data-phone');
-                }
-            </script>
-            
+function formatDate(date) {
+    var d = new Date(date),
+        day = '' + d.getDate(),
+        month = '' + (d.getMonth() + 1),
+        year = d.getFullYear();
+
+    if (day.length < 2) 
+        day = '0' + day;
+    if (month.length < 2) 
+        month = '0' + month;
+
+    return [day, month, year].join('.');
+}
+
+flatpickr("#datePicker", {
+    altInput: true,
+    altFormat: "d.m.Y",
+    dateFormat: "Y-m-d",
+    defaultDate: new Date().toISOString().slice(0, 10) // Formatira današnji datum kao YYYY-MM-DD
+});
+</script>
 @endsection

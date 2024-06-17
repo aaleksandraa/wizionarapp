@@ -59,27 +59,24 @@ class AppointmentController extends Controller
         return view('appointments.create', compact('clients','services', 'today'));
     }
 
-    // Čuva novi termin u bazi podataka
     public function store(Request $request)
-    {
-        try {
+{
+    try {
         $request->validate([
+            'client_type' => 'required',
+            'service_id' => 'required',
+            'date' => 'required|date_format:Y-m-d', // Ako je format datuma Y-m-d
+            'start_time' => 'required',
+            'end_time' => 'required',
             'client_name' => 'required_if:client_type,new',
-        'client_email' => 'nullable|email',
-        'client_phone' => 'nullable',
-        'existing_client_id' => 'required_if:client_type,existing',
-        'service_id' => 'required',
-        'date' => 'required|date_format:Y-m-d', // Ako je format datuma Y-m-d
-        'start_time' => 'required',
-        'end_time' => 'required'
+            'client_email' => 'nullable|email',
+            'client_phone' => 'nullable'
         ]);
     } catch (\Exception $e) {
         return back()->withError('Greška: ' . $e->getMessage())->withInput();
     }
-    
-    
-        
-       // Kreiranje ili dohvat klijenta
+
+    // Kreiranje ili dohvatanje klijenta
     if ($request->input('client_type') == 'new') {
         $client = Client::create([
             'name' => $request->input('client_name'),
@@ -87,27 +84,23 @@ class AppointmentController extends Controller
             'phone' => $request->input('client_phone')
         ]);
     } else {
-        $client = Client::find($request->input('existing_client_id'));
+        $client = Client::find($request->input('existing_client'));
     }
-    
-        // Kreiranje novog termina
-        $appointment = new Appointment([
-            'client_id' => $client->id,
+
+    // Kreiranje novog termina
+    $appointment = new Appointment([
+        'client_id' => $client->id,
         'service_id' => $request->input('service_id'),
         'date' => \Carbon\Carbon::createFromFormat('Y-m-d', $request->input('date'))->format('Y-m-d'),
         'start_time' => $request->input('start_time'),
         'end_time' => $request->input('end_time'),
         'user_id' => auth()->id()
-        ]);
-        $appointment->save();
+    ]);
+    $appointment->save();
 
-        // Ažuriranje DailyRevenue za dan kada je kreiran appointment
-        // $this->updateDailyRevenue($appointment);
-    
-        return redirect()->route('appointments.index')
-                         ->with('success', 'Termin je uspešno dodat.');
-                         
-    }
+    return redirect()->route('appointments.index')->with('success', 'Termin je uspešno dodat.');
+}
+
 
 
     // Prikazuje jedan termin

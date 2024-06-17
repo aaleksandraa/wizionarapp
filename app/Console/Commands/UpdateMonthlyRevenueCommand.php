@@ -1,14 +1,13 @@
 <?php
-
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Services\RevenueService;
 
-class UpdateDailyRevenue extends Command
+class UpdateMonthlyRevenueCommand extends Command
 {
-    protected $signature = 'revenue:update-daily';
-    protected $description = 'Update daily revenue';
+    protected $signature = 'revenue:update-monthly';
+    protected $description = 'Update monthly revenue';
 
     protected $revenueService;
 
@@ -20,7 +19,8 @@ class UpdateDailyRevenue extends Command
 
     public function handle()
     {
-        $this->revenueService->updateDailyRevenue();
-        $this->info('Daily revenue updated successfully');
+        $this->revenueService->updateMonthlyRevenue();
+        $this->info('Monthly revenue updated successfully');
     }
 }
+

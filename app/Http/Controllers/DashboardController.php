@@ -17,35 +17,34 @@ use App\Models\UserDailyRevenue;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function dashboard()
     {
-        
-    }
-
-    public function dashboard() {
         $today = now()->format('Y-m-d');
         $currentMonth = now()->format('Y-m');
-        $currentDailyRevenue = $this->calculateCurrentDailyRevenue($today);
-        $dnevniBrojServisa = $this->calculateCurrentDailyServiceCount($today);
-        $dailyRevenue = DailyRevenue::where('date', $today)->first();
-        $monthlyRevenue = MonthlyRevenue::where('month', $currentMonth)->first();
-        $weeklyRevenue = $this->calculateWeeklyRevenueComparison();
-        $users = User::where('user_type', '!=', 'administrator')->get();
-        $appointments = Appointment::whereDate('date', $today)->get();        
-        $usersRevenueToday = UserDailyRevenue::where('date', $today)->with('user')->get();
         $startOfMonth = now()->startOfMonth()->format('Y-m-d');
         $endOfMonth = now()->endOfMonth()->format('Y-m-d');
+
+        $currentDailyRevenue = $this->calculateCurrentDailyRevenue($today);
+        $dnevniBrojServisa = $this->calculateCurrentDailyServiceCount($today);
+        $weeklyRevenue = $this->calculateWeeklyRevenueComparison();
+        $usersRevenueToday = UserDailyRevenue::where('date', $today)->with('user')->get();
+
         $monthlyTotalRevenue = UserDailyRevenue::whereBetween('date', [$startOfMonth, $endOfMonth])
+                                                ->whereHas('user', function($query) {
+                                                    $query->where('user_type', 'moderator');
+                                                })
                                                 ->sum('revenue');
-        $usersMonthlyRevenue = UserDailyRevenue::whereBetween('date', [$startOfMonth, $endOfMonth])->with('user')->get();
         
         $monthlyUsersRevenue = UserDailyRevenue::whereBetween('date', [$startOfMonth, $endOfMonth])
-        ->with('user')
-        ->select('user_id', DB::raw('SUM(revenue) as total_revenue'))
-        ->groupBy('user_id')
-        ->get();
-        return view('dashboard', compact('currentDailyRevenue', 'dailyRevenue', 'dnevniBrojServisa', 'monthlyRevenue', 'weeklyRevenue', 'users', 'appointments', 'usersRevenueToday', 'usersMonthlyRevenue', 'monthlyUsersRevenue', 'monthlyTotalRevenue'));
+                                                ->whereHas('user', function($query) {
+                                                    $query->where('user_type', 'moderator');
+                                                })
+                                                ->with('user')
+                                                ->select('user_id', DB::raw('SUM(revenue) as total_revenue'))
+                                                ->groupBy('user_id')
+                                                ->get();
 
+        return view('dashboard', compact('currentDailyRevenue', 'dnevniBrojServisa', 'weeklyRevenue', 'usersRevenueToday', 'monthlyTotalRevenue', 'monthlyUsersRevenue'));
     }
 
     private function calculateCurrentDailyRevenue($date) {
@@ -61,40 +60,26 @@ class DashboardController extends Controller
     public function calculateWeeklyRevenueComparison() {
         $startOfThisWeek = Carbon::now()->startOfWeek();
         $endOfThisWeek = Carbon::now();
-    
+
         $thisWeekRevenue = Appointment::join('services', 'appointments.service_id', '=', 'services.id')
                             ->whereBetween('appointments.date', [$startOfThisWeek, $endOfThisWeek])
                             ->sum('services.price');
-    
+
         $startOfLastWeek = Carbon::now()->subWeek()->startOfWeek();
         $endOfLastWeek = $startOfLastWeek->copy()->endOfWeek();
-    
+
         $lastWeekRevenue = Appointment::join('services', 'appointments.service_id', '=', 'services.id')
                             ->whereBetween('appointments.date', [$startOfLastWeek, $endOfLastWeek])
                             ->sum('services.price');
-    
+
         $percentageChange = $lastWeekRevenue != 0 
                             ? (($thisWeekRevenue - $lastWeekRevenue) / $lastWeekRevenue) * 100
                             : 0;
-    
+
         return [
             'thisWeekRevenue' => $thisWeekRevenue,
             'lastWeekRevenue' => $lastWeekRevenue,
             'percentageChange' => $percentageChange
         ];
     }
-    
-            public function getTopServices()
-        {
-            $startOfMonth = Carbon::now()->startOfMonth();
-            $endOfMonth = Carbon::now()->endOfMonth();
-
-            return Service::withCount(['appointments' => function ($query) use ($startOfMonth, $endOfMonth) {
-                $query->whereBetween('date', [$startOfMonth, $endOfMonth]);
-            }])
-            ->orderByDesc('appointments_count')
-            ->take(5)
-            ->get();
-        }
-    
 }

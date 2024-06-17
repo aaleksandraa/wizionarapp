@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Services\RevenueService;
 
-class UpdateDailyRevenue extends Command
+class UpdateDailyRevenueCommand extends Command
 {
     protected $signature = 'revenue:update-daily';
     protected $description = 'Update daily revenue';
@@ -24,3 +24,4 @@ class UpdateDailyRevenue extends Command
         $this->info('Daily revenue updated successfully');
     }
 }
+

@@ -8,59 +8,36 @@ use App\Models\Appointment;
 use App\Models\User;
 use App\Models\UserDailyRevenue;
 
-
-
 class RevenueService
 {
-     public function updateDailyRevenue()
-		{
-			$today = now()->format('Y-m-d');
-
-			// Sumiranje cijena svih usluga (service) za današnji dan
-			$totalRevenueToday = Appointment::join('services', 'appointments.service_id', '=', 'services.id')
-									->whereDate('appointments.date', $today)
-									->sum('services.price'); // Sumiranje cijena usluga
-
-			// Brojanje ukupnog broja usluga (tretmana) za današnji dan
-			$totalServicesToday = Appointment::whereDate('date', $today)->count();
-
-			// Ažuriranje ili kreiranje zapisa u tabeli daily_revenues
-			DailyRevenue::updateOrCreate(
-				['date' => $today],
-				['total_revenue' => $totalRevenueToday, 'total_services' => $totalServicesToday]
-			);
-		}
-
-
-        public function updateDailyUserRevenue()
+    public function updateDailyRevenue()
     {
-        // Dohvati sve korisnike
-        $users = User::all();
+        $today = now()->format('Y-m-d');
 
-        // Iteriraj kroz svakog korisnika
+        $users = User::where('user_type', 'moderator')->get();
         foreach ($users as $user) {
-            // Dohvati sve datume za koje postoji promet za korisnika
-            $dates = Appointment::where('user_id', $user->id)
-                ->distinct()
-                ->pluck('date');
+            $totalRevenue = Appointment::where('user_id', $user->id)
+                ->whereDate('date', $today)
+                ->join('services', 'appointments.service_id', '=', 'services.id')
+                ->sum('services.price');
 
-            // Iteriraj kroz svaki datum i izračunaj promet za korisnika
-            foreach ($dates as $date) {
-                $totalRevenue = Appointment::where('user_id', $user->id)
-                    ->where('date', $date)
-                    ->join('services', 'appointments.service_id', '=', 'services.id')
-                    ->sum('services.price');
-
-                // Spremi promet za korisnika za taj datum u tablicu user_daily_revenues
-                UserDailyRevenue::updateOrCreate(
-                    ['user_id' => $user->id, 'date' => $date],
-                    ['revenue' => $totalRevenue]
-                );
-            }
+            UserDailyRevenue::updateOrCreate(
+                ['user_id' => $user->id, 'date' => $today],
+                ['revenue' => $totalRevenue]
+            );
         }
+
+        $totalRevenueToday = Appointment::whereDate('date', $today)
+            ->join('services', 'appointments.service_id', '=', 'services.id')
+            ->sum('services.price');
+
+        $totalServicesToday = Appointment::whereDate('date', $today)->count();
+
+        DailyRevenue::updateOrCreate(
+            ['date' => $today],
+            ['total_revenue' => $totalRevenueToday, 'total_services' => $totalServicesToday]
+        );
     }
-
-
 
     public function updateMonthlyRevenue()
     {
